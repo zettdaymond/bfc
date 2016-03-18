@@ -287,9 +287,9 @@ void compile(std::string source, std::string outPath)
 
     //add return opcodes
     //mov eax. 1 B801000000
-    push_back_array(bin_out, {'\xB8','\x01','\x00','\x00','\x00', '\00'} );
+    push_back_array(bin_out, {'\xB8','\x01','\x00','\x00','\x00'} );
     //mov ebx. 0 BB5D000000
-    push_back_array(bin_out, {'\xBB','\x5D','\x00','\x00','\x00', '\00'} );
+    push_back_array(bin_out, {'\xBB','\x5D','\x00','\x00','\x00'} );
     //int 0x80
     push_back_array(bin_out, {'\xCD', '\x80'} );
 
