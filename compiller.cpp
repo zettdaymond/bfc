@@ -23,8 +23,71 @@ struct Binary {
   Elf32_Ehdr e_hdr;
   Elf32_Phdr text_hdr;
   Elf32_Phdr bss_hdr;
+//  char padding[12 + 64];
   char code[];
 };
+
+struct Footer {
+    char shstrtab[23];
+    Elf32_Shdr dummy;
+    Elf32_Shdr text_shdrs;
+    Elf32_Shdr bss_shdrs;
+    Elf32_Shdr strtab;
+};
+
+Footer createFooter(unsigned sourceSize)
+{
+    Footer f {
+
+        {"\0.shstrtab\0.text\0.bss\0"},
+
+        { 0, SHT_NULL, 0, 0, 0, 0, SHN_UNDEF, 0, 0, 0 },
+        /* .note.gnu.build-id */
+//        { 11, SHT_NOTE, SHF_ALLOC, ADDR_TEXT + offsetof(elf, note_gnu_build_id),
+//                    offsetof(elf, note_gnu_build_id), sizeof foo.note_gnu_build_id,
+//                    SHN_UNDEF, 0, sizeof(Elf32_Word), 0 },
+        /* .text */
+        {
+            30,
+            SHT_PROGBITS,
+            SHF_EXECINSTR | SHF_ALLOC,
+            LOAD_ADDRESS + ( offsetof (struct Binary, code) ),  //sh_addr
+            ( offsetof(struct Binary, code) ), //sh_offset
+            sourceSize,
+            SHN_UNDEF,
+            0,
+            0x10,
+            0
+        },
+        /* .bss */
+        {
+            36,
+            SHT_NOBITS,
+            SHF_WRITE | SHF_ALLOC,
+            LOAD_ADDRESS + sizeof(struct Binary) + sourceSize + 2,
+            offsetof(struct Binary, code) + sourceSize + 2,//sh_offset
+            0x1d4c0,       //size
+            SHN_UNDEF,                  //link
+            0,                          //info
+            sizeof(Elf32_Addr),         //addralign
+            0                           //entsize
+        },
+        /* .shstrtab */
+        {
+            1,
+            SHT_STRTAB,
+                    0,
+                    0,
+                    sizeof(struct Binary) + sourceSize ,
+                    sizeof (f.shstrtab),
+                    SHN_UNDEF,
+                    0,
+                    1,
+                    0
+        }
+    };
+    return f;
+}
 
 Binary createBinary()
 {
@@ -39,7 +102,7 @@ Binary createBinary()
                 ELFCLASS32,
                 ELFDATA2LSB,
                 EV_CURRENT,
-                ELFOSABI_LINUX,
+                0,
               },
           /*.e_type    =*/  ET_EXEC,
           /*.e_machine = */ EM_386,
@@ -56,8 +119,8 @@ Binary createBinary()
 
           /* section header */
           /*.e_shentsize = */sizeof (Elf32_Shdr),
-          /*.e_shnum     = */0,
-          /*.e_shstrndx  = */0
+          /*.e_shnum     = */4,
+          /*.e_shstrndx  = */3
         },
 
         /* PROGRAM HEADER .text */
@@ -76,8 +139,8 @@ Binary createBinary()
         /*.phdr =*/ {
           /*.p_type   =*/ PT_LOAD,
           /*.p_offset =*/ 0,
-          /*.p_vaddr = */ LOAD_ADDRESS,
-          /*.p_paddr = */ LOAD_ADDRESS,
+          /*.p_vaddr = */ 0,
+          /*.p_paddr = */ 0,
           /*.p_filesz = */0,
           /*.p_memsz = */ 0,
           /*.p_flags = */ PF_R | PF_W,
@@ -87,43 +150,6 @@ Binary createBinary()
     return bin;
 }
 
-Elf32_Ehdr createElfHeader()
-{
-
-    Elf32_Ehdr elf{
-        {'\x7f', 'E', 'L', 'F', '\x01','\x01','\x01',0,0,0,0,0,0,0,0,'\x10'}
-    };
-    elf.e_type = ET_EXEC; //Executeble file
-    elf.e_machine = EM_386; //Type of arch
-    elf.e_version = EV_CURRENT; //
-    elf.e_phoff = sizeof (Elf32_Ehdr);
-    elf.e_shoff = LOAD_ADDRESS + 0x80; //TEMPORARY!!!
-    elf.e_flags = 0;
-    elf.e_ehsize = sizeof (Elf32_Ehdr);
-    elf.e_phentsize = sizeof(Elf32_Phdr);
-    elf.e_phnum = 2; //text + data segment
-
-    //TEMPORARY
-    elf.e_shentsize = 0;
-    elf.e_shnum = 0;
-    elf.e_shstrndx = 0;
-    return elf;
-}
-
-Elf32_Phdr createProgramHeader() {
-    Elf32_Phdr header;
-
-    header.p_type = PT_LOAD; // Both, .text and .bss
-    header.p_offset; //determine later
-    header.p_vaddr;
-    header.p_paddr = 0;
-    header.p_filesz;
-    header.p_memsz;
-    header.p_flags = PF_R | PF_X;
-    header.p_align = 0x1000;
-
-    return header;
-}
 
 unsigned startOfTextSegmentAdr()
 {
@@ -287,9 +313,9 @@ void compile(std::string source, std::string outPath)
 
     //add return opcodes
     //mov eax. 1 B801000000
-    push_back_array(bin_out, {'\xB8','\x01','\x00','\x00','\x00', '\00'} );
-    //mov ebx. 0 BB5D000000
-    push_back_array(bin_out, {'\xBB','\x5D','\x00','\x00','\x00', '\00'} );
+    push_back_array(bin_out, {'\xB8','\x01','\x00','\x00','\x00'} );
+    //mov ebx. 0 BB00000000
+    push_back_array(bin_out, {'\xBB','\x00','\x00','\x00','\x00'} );
     //int 0x80
     push_back_array(bin_out, {'\xCD', '\x80'} );
 
@@ -317,17 +343,22 @@ void compile(std::string source, std::string outPath)
     bin.text_hdr.p_memsz = sizeof (struct Binary) + bin_out.size();
     bin.text_hdr.p_filesz = sizeof (struct Binary) + bin_out.size();
 
-    bin.bss_hdr.p_offset = (offsetof (struct Binary, code) ) + bin_out.size();
+    bin.bss_hdr.p_offset = (offsetof (struct Binary, code) ) + bin_out.size() +2;
     bin.bss_hdr.p_memsz = 0x1D4C0; //30'000 * 4
     bin.bss_hdr.p_filesz = 0;
-    bin.bss_hdr.p_paddr = LOAD_ADDRESS + (offsetof (struct Binary, code) ) + bin_out.size();
-    bin.bss_hdr.p_vaddr = LOAD_ADDRESS + (offsetof (struct Binary, code) ) + bin_out.size();
+    bin.bss_hdr.p_paddr = LOAD_ADDRESS + (offsetof (struct Binary, code) ) + bin_out.size() + 2;
+    bin.bss_hdr.p_vaddr = LOAD_ADDRESS + (offsetof (struct Binary, code) ) + bin_out.size() + 2;
 
+    bin.e_hdr.e_shoff = sizeof( struct Binary ) + bin_out.size() +
+            offsetof (struct Footer, dummy);
+
+    DUMP_VAR( sizeof(Footer::shstrtab) )
     out.write((char*)&bin, sizeof(bin));
     out.write((char*)&bin_out[0], bin_out.size()* sizeof(char));
 
-    char term[1] = {'0'};
-    out.write(term, sizeof(char));
+    Footer footer= createFooter(bin_out.size());
+//    char term[2] = {'0', 'E'};
+    out.write((char*)&footer, sizeof(footer));
     out.close();
 
 }
