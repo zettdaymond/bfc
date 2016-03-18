@@ -33,7 +33,7 @@ struct Binary {
 };
 
 
-Binary createBinary(auto code_size)
+Binary createBinary(unsigned code_size)
 {
     return Binary {
         /* ELF HEADER */
@@ -73,8 +73,8 @@ Binary createBinary(auto code_size)
           /*.p_offset =*/ 0,
           /*.p_vaddr = */ LOAD_ADDRESS,
           /*.p_paddr = */ LOAD_ADDRESS,
-          /*.p_filesz = */sizeof (struct Binary) + code_size,
-          /*.p_memsz = */ sizeof (struct Binary) + code_size,
+          /*.p_filesz = */cast_to_U32( sizeof (struct Binary) + code_size ),
+          /*.p_memsz = */ cast_to_U32(sizeof (struct Binary) + code_size ),
           /*.p_flags = */ PF_R | PF_X,
           /*.p_align = */ 0x1000
         },
@@ -82,9 +82,9 @@ Binary createBinary(auto code_size)
         /* PROGRAM HEADER .bss*/
         /*.phdr =*/ {
           /*.p_type   =*/ PT_LOAD,
-          /*.p_offset =*/ (offsetof (struct Binary, code) ) + code_size,
-          /*.p_vaddr = */ LOAD_ADDRESS + (offsetof (struct Binary, code) ) + code_size,
-          /*.p_paddr = */ LOAD_ADDRESS + (offsetof (struct Binary, code) ) + code_size,
+          /*.p_offset =*/ cast_to_U32( (offsetof (struct Binary, code) ) + code_size ),
+          /*.p_vaddr = */ cast_to_U32( LOAD_ADDRESS + (offsetof (struct Binary, code) ) + code_size ),
+          /*.p_paddr = */ cast_to_U32( LOAD_ADDRESS + (offsetof (struct Binary, code) ) + code_size ),
           /*.p_filesz = */0,
           /*.p_memsz = */ BSS_MEM_SIZE,
           /*.p_flags = */ PF_R | PF_W,
@@ -109,7 +109,7 @@ std::string compile(const std::string& source)
     std::vector<char> bin_out;
 
     //insert opcodes that install .bss adr in esi registry
-    push_back_array(bin_out, {'\xBE','\x00','\x00','\x00','\x00'} );
+    pushBackArray(bin_out, {'\xBE','\x00','\x00','\x00','\x00'} );
 
     //to track shifts
     std::stack<unsigned> stack;
@@ -117,62 +117,61 @@ std::string compile(const std::string& source)
     for(auto token : source) {
         if(token == '>') {
             //add esi, 4
-            push_back_array(bin_out, {'\x83','\xC6','\x04'} );
+            pushBackArray(bin_out, {'\x83','\xC6','\x04'} );
             DUMP_VAR(bin_out.size());
-            dump(bin_out);
+            DUMP_COLLECTION(bin_out);
             continue;
         }
         if(token == '<') {
             //sub esi, 4
-            push_back_array(bin_out, {'\x83','\xEE','\x04'} );
+            pushBackArray(bin_out, {'\x83','\xEE','\x04'} );
             DUMP_VAR(bin_out.size());
-            dump(bin_out);
+            DUMP_COLLECTION(bin_out);
             continue;
         }
         if (token == '+') {
             //add dword [esi], 1
-            push_back_array(bin_out, {'\x83','\x06','\x01'} );
+            pushBackArray(bin_out, {'\x83','\x06','\x01'} );
             DUMP_VAR(bin_out.size());
-            dump(bin_out);
+            DUMP_COLLECTION(bin_out);
             continue;
         }
         if (token == '-') {
             //sub dword [esi], 1
-            push_back_array(bin_out, {'\x83','\x2E','\x01'} );
+            pushBackArray(bin_out, {'\x83','\x2E','\x01'} );
             DUMP_VAR(bin_out.size());
-            dump(bin_out);
+            DUMP_COLLECTION(bin_out);
             continue;
         }
         if (token == '.') {
             //mov eax, 3
-            push_back_array(bin_out, {'\xB8','\x04','\x00','\x00','\x00'} );
+            pushBackArray(bin_out, {'\xB8','\x04','\x00','\x00','\x00'} );
             //mov ebx, 1
-            push_back_array(bin_out, {'\xBB','\x01','\x00','\x00','\x00'} );
+            pushBackArray(bin_out, {'\xBB','\x01','\x00','\x00','\x00'} );
             //mov ecx, esi
-            push_back_array(bin_out, {'\x89','\xF1'} );
+            pushBackArray(bin_out, {'\x89','\xF1'} );
             //mov edx, 1
-            push_back_array(bin_out, {'\xBA','\x01','\x00','\x00','\x00'} );
+            pushBackArray(bin_out, {'\xBA','\x01','\x00','\x00','\x00'} );
             //int 0x80
-            push_back_array(bin_out, {'\xCD','\x80'} );
+            pushBackArray(bin_out, {'\xCD','\x80'} );
             DUMP_VAR(bin_out.size());
-            dump(bin_out);
+            DUMP_COLLECTION(bin_out);
             continue;
         }
         if (token == '[') {
             //w_num:
             stack.push(bin_out.size());
             //cmp dword [esi], 0
-            push_back_array(bin_out, {'\x83','\x3E','\x00'} );
+            pushBackArray(bin_out, {'\x83','\x3E','\x00'} );
             //je near ew_NUM (fill by temporary adress 00000000)
-            push_back_array(bin_out, {'\x0F','\x84','\x00','\x00','\x00', '\00'} );
+            pushBackArray(bin_out, {'\x0F','\x84','\x00','\x00','\x00', '\00'} );
             DUMP_VAR(bin_out.size());
-            dump(bin_out);
+            DUMP_COLLECTION(bin_out);
             continue;
         }
         if (token == ']') {
             //jmp near w_num
-            std::cout << "TOKEN ']' : " << std::endl;
-            push_back_array(bin_out, {'\xE9','\x00','\x00','\x00','\x00'} );
+            pushBackArray(bin_out, {'\xE9','\x00','\x00','\x00','\x00'} );
             DUMP_VAR(bin_out.size());
 
             //FIND JMP ADRESSES
@@ -200,11 +199,7 @@ std::string compile(const std::string& source)
             bin_out[bin_out.size() - 3] = jmpShiftBytes[2];
             bin_out[bin_out.size() - 4] = jmpShiftBytes[3];
 
-            std::cout << "start Adr Bytes: ";
-            for(auto c: jmpShiftBytes) {
-                std::cout << hex( c ) << " ";
-            }
-            std::cout <<std::endl;
+            DUMP_COLLECTION(jmpShiftBytes);
 
             //FOURTH: Calculate the shift between NEXT AFTER the je instruction and the end of the loop
             // 9 corresponds number of bytes cmp instruction + je instruction itself.
@@ -221,13 +216,9 @@ std::string compile(const std::string& source)
             bin_out[lStart + 2] = jeShiftBytes[1];
             bin_out[lStart + 3] = jeShiftBytes[0];
 
-            std::cout << "end Adr Bytes: ";
-            for(auto c: jeShiftBytes) {
-                std::cout << hex( c ) << " ";
-            }
-            std::cout <<std::endl;
+            DUMP_COLLECTION(jeShiftBytes);
 
-            dump(bin_out);
+            DUMP_COLLECTION(bin_out);
             continue;
         }
         printf("Could not recognize token : '%c' \n", token);
@@ -235,11 +226,11 @@ std::string compile(const std::string& source)
 
     //add return opcodes
     //mov eax. 1 B801000000
-    push_back_array(bin_out, {'\xB8','\x01','\x00','\x00','\x00'} );
+    pushBackArray(bin_out, {'\xB8','\x01','\x00','\x00','\x00'} );
     //mov ebx. 0 BB5D000000
-    push_back_array(bin_out, {'\xBB','\x5D','\x00','\x00','\x00'} );
+    pushBackArray(bin_out, {'\xBB','\x5D','\x00','\x00','\x00'} );
     //int 0x80
-    push_back_array(bin_out, {'\xCD', '\x80'} );
+    pushBackArray(bin_out, {'\xCD', '\x80'} );
 
     //calculate adress that starts immediately after our .tex segment
     //this is an andress of .bss segment
@@ -255,7 +246,8 @@ std::string compile(const std::string& source)
     bin_out[2] = bssAdrBytes[2];
     bin_out[3] = bssAdrBytes[1];
     bin_out[4] = bssAdrBytes[0];
-    dump(bin_out);
+
+    DUMP_COLLECTION(bin_out);
 
     //Write output to elf
     std::stringstream out;

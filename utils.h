@@ -7,6 +7,7 @@
 #include <initializer_list>
 
 #define DUMP_VAR( V ) std::cout << (#V) << " : " << V << std::endl;
+#define DUMP_COLLECTION( V ) std::cout << (#V) << " : " << std::endl; dump( V );
 
 bool replace(std::string& str, const std::string& from, const std::string& to) {
     size_t start_pos = str.find(from);
@@ -41,10 +42,9 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return elems;
 }
 
-void push_back_array(std::vector<char>& v, std::initializer_list<char> l)
+void pushBackArray(std::vector<char>& v, std::initializer_list<char> l)
 {
     for(auto e : l) {
-//        char es = e[0];
         v.push_back( e );
     }
 }
@@ -76,12 +76,17 @@ std::array<char, 4> splitToBytes( unsigned n )
     return bytes;
 }
 
-void dump( std::vector<char>& v) {
+template<class T>
+void dump( T& v) {
     std::cout << "Dump : ";
     for(auto c : v) {
         std::cout << hex(c)  << " ";
     }
     std::cout << "\t|\tSIZE: " << v.size() << std::endl << std::endl;
+}
+
+unsigned cast_to_U32(long int n) {
+    return static_cast<uint32_t> (n);
 }
 
 #endif //UTILS_H
