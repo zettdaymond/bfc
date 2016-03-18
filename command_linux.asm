@@ -19,9 +19,9 @@
     mov edx, 1
     int 0x80
 /;start loop
-while_NUM: 
+w_NUM: 
     cmp dword [esi], 0
-    je near end_while_NUM
+    je near ew_NUM
 /;stop loop
-    jmp near while_NUM
-end_while_NUM:
+    jmp near w_NUM
+ew_NUM:

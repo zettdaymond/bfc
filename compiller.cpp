@@ -13,11 +13,17 @@
 
 #include "utils.h"
 
-std::string asmTemplate {""};
-std::vector<std::string> asmTemplates;
-
 #define LOAD_ADDRESS 0x8048000
-#define DUMP_VAR( V ) std::cout << (#V) << " : " << V << std::endl;
+#define BSS_MEM_SIZE 0x1D4C0 /*30'000 * 4*/
+
+namespace Compiller {
+
+
+struct ASMTemplates {
+    std::string src;
+    std::vector< std::string > cmds;
+};
+
 
 struct Binary {
   Elf32_Ehdr e_hdr;
@@ -26,9 +32,10 @@ struct Binary {
   char code[];
 };
 
-Binary createBinary()
+
+Binary createBinary(auto code_size)
 {
-    Binary bin = {
+    return Binary {
         /* ELF HEADER */
         /*.ehdr = */
         {
@@ -66,8 +73,8 @@ Binary createBinary()
           /*.p_offset =*/ 0,
           /*.p_vaddr = */ LOAD_ADDRESS,
           /*.p_paddr = */ LOAD_ADDRESS,
-          /*.p_filesz = */0,
-          /*.p_memsz = */ 0,
+          /*.p_filesz = */sizeof (struct Binary) + code_size,
+          /*.p_memsz = */ sizeof (struct Binary) + code_size,
           /*.p_flags = */ PF_R | PF_X,
           /*.p_align = */ 0x1000
         },
@@ -75,81 +82,22 @@ Binary createBinary()
         /* PROGRAM HEADER .bss*/
         /*.phdr =*/ {
           /*.p_type   =*/ PT_LOAD,
-          /*.p_offset =*/ 0,
-          /*.p_vaddr = */ LOAD_ADDRESS,
-          /*.p_paddr = */ LOAD_ADDRESS,
+          /*.p_offset =*/ (offsetof (struct Binary, code) ) + code_size,
+          /*.p_vaddr = */ LOAD_ADDRESS + (offsetof (struct Binary, code) ) + code_size,
+          /*.p_paddr = */ LOAD_ADDRESS + (offsetof (struct Binary, code) ) + code_size,
           /*.p_filesz = */0,
-          /*.p_memsz = */ 0,
+          /*.p_memsz = */ BSS_MEM_SIZE,
           /*.p_flags = */ PF_R | PF_W,
           /*.p_align = */ 0x1000
         },
+
+        /* CODE */
+        {}
       };
-    return bin;
 }
 
-Elf32_Ehdr createElfHeader()
-{
 
-    Elf32_Ehdr elf{
-        {'\x7f', 'E', 'L', 'F', '\x01','\x01','\x01',0,0,0,0,0,0,0,0,'\x10'}
-    };
-    elf.e_type = ET_EXEC; //Executeble file
-    elf.e_machine = EM_386; //Type of arch
-    elf.e_version = EV_CURRENT; //
-    elf.e_phoff = sizeof (Elf32_Ehdr);
-    elf.e_shoff = LOAD_ADDRESS + 0x80; //TEMPORARY!!!
-    elf.e_flags = 0;
-    elf.e_ehsize = sizeof (Elf32_Ehdr);
-    elf.e_phentsize = sizeof(Elf32_Phdr);
-    elf.e_phnum = 2; //text + data segment
-
-    //TEMPORARY
-    elf.e_shentsize = 0;
-    elf.e_shnum = 0;
-    elf.e_shstrndx = 0;
-    return elf;
-}
-
-Elf32_Phdr createProgramHeader() {
-    Elf32_Phdr header;
-
-    header.p_type = PT_LOAD; // Both, .text and .bss
-    header.p_offset; //determine later
-    header.p_vaddr;
-    header.p_paddr = 0;
-    header.p_filesz;
-    header.p_memsz;
-    header.p_flags = PF_R | PF_X;
-    header.p_align = 0x1000;
-
-    return header;
-}
-
-unsigned startOfTextSegmentAdr()
-{
-    return  LOAD_ADDRESS + (offsetof (struct Binary, code)) ;
-}
-
-std::array<char, 4> splitToBytes( unsigned n )
-{
-    std::array<char, 4> bytes;
-
-    bytes[0] = (n >> 24) & 0xFF;
-    bytes[1] = (n >> 16) & 0xFF;
-    bytes[2] = (n >> 8) & 0xFF;
-    bytes[3] = n & 0xFF;
-    return bytes;
-}
-
-void dump( std::vector<char>& v) {
-    std::cout << "Dump : ";
-    for(auto c : v) {
-        std::cout << hex(c)  << " ";
-    }
-    std::cout << "\t|\tSIZE: " << v.size() << std::endl << std::endl;
-}
-
-void compile(std::string source, std::string outPath)
+std::string compile(const std::string& source)
 {
     /* if src file exists
      * generate asembly file for it
@@ -310,77 +258,67 @@ void compile(std::string source, std::string outPath)
     dump(bin_out);
 
     //Write output to elf
-    std::ofstream out(outPath, std::ios::binary);
+    std::stringstream out;
 
-    Binary bin = createBinary();
-
-    bin.text_hdr.p_memsz = sizeof (struct Binary) + bin_out.size();
-    bin.text_hdr.p_filesz = sizeof (struct Binary) + bin_out.size();
-
-    bin.bss_hdr.p_offset = (offsetof (struct Binary, code) ) + bin_out.size();
-    bin.bss_hdr.p_memsz = 0x1D4C0; //30'000 * 4
-    bin.bss_hdr.p_filesz = 0;
-    bin.bss_hdr.p_paddr = LOAD_ADDRESS + (offsetof (struct Binary, code) ) + bin_out.size();
-    bin.bss_hdr.p_vaddr = LOAD_ADDRESS + (offsetof (struct Binary, code) ) + bin_out.size();
+    Binary bin = createBinary( bin_out.size() );
 
     out.write((char*)&bin, sizeof(bin));
     out.write((char*)&bin_out[0], bin_out.size()* sizeof(char));
 
-    char term[1] = {'0'};
-    out.write(term, sizeof(char));
-    out.close();
-
+    return out.str();
 }
 
-void init()
+ASMTemplates createAsmTemplates()
 {
     std::stringstream buffer;
+    ASMTemplates asm_tpls;
 
     std::ifstream templateFile("template_linux.asm");
     buffer << templateFile.rdbuf();
     templateFile.close();
-    asmTemplate = buffer.str();
+    asm_tpls.src = buffer.str();
     buffer.str(""); //clear buffer;
 
     std::ifstream cmdFile("command_linux.asm");
     buffer << cmdFile.rdbuf();
     templateFile.close();
 
-    asmTemplates = split(buffer.str(), '/');
+    asm_tpls.cmds = split(buffer.str(), '/');
+    return asm_tpls;
 }
 
-std::string assembly(std::string source)
+std::string assembly(const std::string& source)
 {
-    init();
+    ASMTemplates asm_tpls = createAsmTemplates();
 
-    std::string cmds = "";
+    std::string cmds;
 
     unsigned lastID = 0;
     std::stack<unsigned> stack;
 
     for(auto token : source) {
         if(token == '>') {
-            cmds.append( asmTemplates[Operations::INC_PTR] );
+            cmds.append( asm_tpls.cmds[Operations::INC_PTR] );
             continue;
         }
         if(token == '<') {
-            cmds.append( asmTemplates[Operations::DEC_PTR] );
+            cmds.append( asm_tpls.cmds[Operations::DEC_PTR] );
             continue;
         }
         if (token == '+') {
-            cmds.append( asmTemplates[Operations::INC_VALUE] );
+            cmds.append( asm_tpls.cmds[Operations::INC_VALUE] );
             continue;
         }
         if (token == '-') {
-            cmds.append( asmTemplates[Operations::DEC_VALUE] );
+            cmds.append( asm_tpls.cmds[Operations::DEC_VALUE] );
             continue;
         }
         if (token == '.') {
-            cmds.append( asmTemplates[Operations::PUT_CHAR] );
+            cmds.append( asm_tpls.cmds[Operations::PUT_CHAR] );
             continue;
         }
         if (token == '[') {
-            auto templ = asmTemplates[Operations::START_LOOP];
+            auto templ = asm_tpls.cmds[Operations::START_LOOP];
 
             stack.push(lastID);
             replaceAll( templ, "NUM", std::to_string(lastID) );
@@ -390,7 +328,7 @@ std::string assembly(std::string source)
             continue;
         }
         if (token == ']') {
-            auto templ = asmTemplates[Operations::END_LOOP];
+            auto templ = asm_tpls.cmds[Operations::END_LOOP];
 
             auto id = stack.top();
             stack.pop();
@@ -400,7 +338,7 @@ std::string assembly(std::string source)
             cmds.append( templ );
             continue;
         }
-        printf("Could not recognize token : '%c' \n", token);
+        //Skip every unrecognized token
     }
 
 
@@ -409,9 +347,10 @@ std::string assembly(std::string source)
         std::exit(255);
     }
 
-    auto ret = asmTemplate;
-    replaceAll(ret, "{SOURCE}", cmds);
-    ret.append("\n");
+    replaceAll(asm_tpls.src, "{SOURCE}", cmds);
+    asm_tpls.src.append("\n");
 
-    return ret;
+    return asm_tpls.src;
 }
+
+}// namespace Compiller

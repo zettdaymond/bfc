@@ -9,6 +9,8 @@
 
 #include "compiller.h"
 
+using namespace Compiller;
+
 void usage();
 CompillerState parseComandLineArgs(int argc, char const *argv[]);
 
@@ -21,7 +23,7 @@ int main(int argc, char const *argv[])
 
     if (!sourceFile.is_open()) {
         std::cout << "Could not open file '"
-                  << compillerState.src << "'.";
+                  << compillerState.src << "'." << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
@@ -29,15 +31,17 @@ int main(int argc, char const *argv[])
     buffer << sourceFile.rdbuf();
     sourceFile.close();
 
+    std::string out;
+
     auto src = buffer.str();
     if (compillerState.assembly == true) {
-        std::string out = assembly(src);
-        std::ofstream outFile( compillerState.outFile );
-        outFile << out;
-        outFile.flush();
+        out = assembly(src);
     } else {
-        compile(src, compillerState.outFile);
+        out = compile(src);
     }
+    std::ofstream outFile( compillerState.outFile );
+    outFile << out;
+    outFile.flush();
 
     return 0;
 }

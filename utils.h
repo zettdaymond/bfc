@@ -2,8 +2,11 @@
 #define UTILS_H
 
 #include <vector>
+#include <array>
 #include <string>
 #include <initializer_list>
+
+#define DUMP_VAR( V ) std::cout << (#V) << " : " << V << std::endl;
 
 bool replace(std::string& str, const std::string& from, const std::string& to) {
     size_t start_pos = str.find(from);
@@ -62,5 +65,23 @@ inline HexCharStruct hex(unsigned char _c)
   return HexCharStruct(_c);
 }
 
+std::array<char, 4> splitToBytes( unsigned n )
+{
+    std::array<char, 4> bytes;
+
+    bytes[0] = (n >> 24) & 0xFF;
+    bytes[1] = (n >> 16) & 0xFF;
+    bytes[2] = (n >> 8) & 0xFF;
+    bytes[3] = n & 0xFF;
+    return bytes;
+}
+
+void dump( std::vector<char>& v) {
+    std::cout << "Dump : ";
+    for(auto c : v) {
+        std::cout << hex(c)  << " ";
+    }
+    std::cout << "\t|\tSIZE: " << v.size() << std::endl << std::endl;
+}
 
 #endif //UTILS_H

@@ -1,5 +1,8 @@
 #include <string>
 
+namespace Compiller 
+{
+
 struct CompillerState
 {
     std::string outFile = "a.out";
@@ -20,6 +23,18 @@ enum Operations
     COUNT
 };
 
-void compile(std::string source, std::string out);
+/**
+ * @brief Compiles source into binary file on running platform
+ * @param source - Brainfuck instruction set
+ * @return executable binary data
+ */
+std::string compile(const std::string& source);
 
-std::string assembly(std::string source);
+/**
+ * @brief translates Brainfuck source into NASM assembly.
+ * @param source Brainfuck instruction set
+ * @return NASM assembly instructions
+ */
+std::string assembly(const std::string& source);
+
+}
