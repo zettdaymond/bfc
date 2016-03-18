@@ -1,4 +1,4 @@
-#include "compiller.h"
+#include "../../compiller.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -11,7 +11,7 @@
 #include <elf.h>
 #include <stddef.h>
 
-#include "utils.h"
+#include "../../utils.h"
 
 #define LOAD_ADDRESS 0x8048000
 #define BSS_MEM_SIZE 0x1D4C0 /*30'000 * 4*/

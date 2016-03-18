@@ -6,8 +6,13 @@
 #include <string>
 #include <initializer_list>
 
-#define DUMP_VAR( V ) std::cout << (#V) << " : " << V << std::endl;
-#define DUMP_COLLECTION( V ) std::cout << (#V) << " : " << std::endl; dump( V );
+#if defined(BFC_DEBUG)
+#   define DUMP_VAR( V ) std::cout << (#V) << " : " << V << std::endl;
+#   define DUMP_COLLECTION( V ) std::cout << (#V) << " : " << std::endl; dump( V );
+#else
+#   define DUMP_VAR( V ) ((void)0);
+#   define DUMP_COLLECTION( V ) ((void)0);
+#endif
 
 bool replace(std::string& str, const std::string& from, const std::string& to) {
     size_t start_pos = str.find(from);

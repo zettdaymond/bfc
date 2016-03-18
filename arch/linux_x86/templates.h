@@ -84,4 +84,6 @@ std::string getEndLoopTmp() {
     return tmp;
 }
 
+
+
 #endif // TEMPLATES_H
