@@ -221,7 +221,7 @@ std::string compile(const std::string& source)
             DUMP_COLLECTION(bin_out);
             continue;
         }
-        printf("Could not recognize token : '%c' \n", token);
+        //Skip every unrecognized token
     }
 
     //add return opcodes

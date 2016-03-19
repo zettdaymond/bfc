@@ -91,5 +91,5 @@ void usage()
     printf("\t-a, --assembly\t"
            "Generate NASM assembly listing\n");
     printf("\t-o, --output\t"
-           "Generate NASM assembly listing\n");
+           "Specify output file\n");
 }
