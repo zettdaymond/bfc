@@ -24,6 +24,10 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         ${CMAKE_SOURCE_DIR}/arch/linux_x86/compiller_linux.cpp
         ${CMAKE_SOURCE_DIR}/arch/linux_x86/asm_templates.h
         ${CMAKE_SOURCE_DIR}/arch/linux_x86/bin_templates.h)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set(BFC_PLATFORM_SOURCE
+        ${CMAKE_SOURCE_DIR}/arch/windows_x86/compiller_windows.cpp
+        ${CMAKE_SOURCE_DIR}/arch/windows_x86/templates.h)
 else()
     message(FATAL_ERROR "Your Platform does not supported: ${CMAKE_SYSTEM_NAME}")
 endif()

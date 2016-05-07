@@ -1,0 +1,14 @@
+mov esi, DATAPTR            |   BE[00000000] 
+add esi, 4                  |   83C604
+sub esi, 4                  |   83EE04
+add dword [esi], 1          |   830601
+sub dword [esi], 1          |   832E01
+mov eax, 4                  |   B804000000   
+mov ebx, 1                  |   BB01000000
+mov ecx, esi                |   89F1
+mov edx, 1                  |   BA01000000
+int 0x80                    |   CD80
+mov eax, 3                  |   B803000000   
+cmp byte [esi], 0           |   803E00
+je end_while_NUM            |
+jmp while_NUM               |
