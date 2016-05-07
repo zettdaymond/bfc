@@ -4,12 +4,13 @@
 #include <elf.h>
 #include <iostream>
 #include <sstream>
-
 #include <fstream>
+#include <algorithm>
 
 #include "compiller.h"
+#include "utils.h"
 
-using namespace Compiller;
+using namespace bfc;
 
 void usage();
 CompillerState parseComandLineArgs(int argc, char const *argv[]);
@@ -34,14 +35,38 @@ int main(int argc, char const *argv[])
     std::string out;
 
     auto src = buffer.str();
-    if (compillerState.assembly == true) {
-        out = assembly(src);
-    } else {
-        out = compile(src);
+
+    auto tokens = lexAnalyse(src);
+    if (tokens.empty()) {
+        DEBUG_PRINT("Lex analyse failed");
+        return 0;
     }
+    DEBUG_LAMBDA_TRAVERSE(tokens, [](auto& t){std::cout << t;});
+
+    if (syntaxAnalyse(tokens) == 0 or semanticAnalyse(tokens) == 0) {
+        DEBUG_PRINT(syntaxAnalyse(tokens) == true ?
+                           "Syntax analyse failed" :
+                           "Semantic analyse failed");
+        return 0;
+    }
+
+    auto byte_code = optimize(tokens);
+
+    DEBUG_LAMBDA_TRAVERSE(byte_code, [](auto& t){std::cout << t.op << " : " << t.arg << std::endl;});
+
+    if (compillerState.assembly == true) {
+        std::cout << "Translate to NASM..." << std::endl;
+        out = toAssembly(byte_code);
+    } else {
+        std::cout << "Translate to Binnary..." << std::endl;
+        out = toBinnary(byte_code);
+    }
+
     std::ofstream outFile( compillerState.outFile );
     outFile << out;
     outFile.flush();
+
+    std::cout << "Done." << std::endl;
 
     return 0;
 }
@@ -84,12 +109,9 @@ CompillerState parseComandLineArgs(int argc, char const *argv[])
 
 void usage()
 {
-    printf("Usage: bfc [OPTIONS] file...\n"
-           "Options: \n");
-    printf("\t-h, --help\t"
-           "Display this message and exit\n");
-    printf("\t-a, --assembly\t"
-           "Generate NASM assembly listing\n");
-    printf("\t-o, --output\t"
-           "Specify output file\n");
+    std::cout   << "Usage: bfc [OPTIONS] [FILE]\n"
+                << "Options: \n"
+                << "\t-h, --help       Display this message and exit\n"
+                << "\t-a, --assembly   Generate NASM assembly listing instead of binary data\n"
+                << "\t-o, --output     Specify output file\n";
 }

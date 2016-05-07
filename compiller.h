@@ -1,6 +1,6 @@
 #include <string>
-
-namespace Compiller 
+#include <vector>
+namespace bfc
 {
 
 struct CompillerState
@@ -10,31 +10,55 @@ struct CompillerState
     bool assembly = false;
 };
 
-enum Operations
-{
-    INC_PTR = 0,
-    DEC_PTR = 1,
-    INC_VALUE = 2,
-    DEC_VALUE = 3,
-    PUT_CHAR = 4,
-    GET_CHAR = 5,
-    START_LOOP = 6,
-    END_LOOP = 7,
-    COUNT
+struct ByteCode {
+    char op;
+    unsigned arg;
 };
 
 /**
- * @brief Compiles source into binary file on running platform
- * @param source - Brainfuck instruction set
- * @return executable binary data
+ * @brief Converts string into a sequence of Brainfuck instructions.
+ *  Iterate over source string and try to distinguish brainfuck instructions.
+ *  If symbol can not been recognized - prints error and returns empty instruction set.
+ *
+ * @param source - Raw source string.
+ * @return Sequence of Brainfuck instructions.
  */
-std::string compile(const std::string& source);
+std::vector<char> lexAnalyse(const std::string& source);
 
 /**
- * @brief translates Brainfuck source into NASM assembly.
- * @param source Brainfuck instruction set
+ * @brief Checks that set of tokens is conforming to the rules of a Brainfuck formal grammar.
+ * @param Set of tokens
+ * @return true, if instructions form valid Brainfuck program.
+ */
+bool syntaxAnalyse(const std::vector<char>& v);
+
+/**
+ * @brief Perform some checks like seeking infinite loops.
+ * @param Set of tokens
+ * @return true, if all checks passed.
+ */
+bool semanticAnalyse(const std::vector<char> &v);
+
+
+/**
+ * @brief Generates optimized internal byte code.
+ * @param Valid set of tokens.
+ * @return Insternal byte code.
+ */
+std::vector<ByteCode> optimize(const std::vector<char> &v);
+
+/**
+ * @brief Translates internal byte code representation into NASM assembly.
+ * @param code - Brainfuck instruction set
  * @return NASM assembly instructions
  */
-std::string assembly(const std::string& source);
+std::string toAssembly(const std::vector<ByteCode> code);
+
+/**
+ * @brief Translates internal byte code into binary file on running platform
+ * @param code - Brainfuck instruction internal representation
+ * @return executable binary data
+ */
+std::string toBinnary(const std::vector<ByteCode> code);
 
 }
