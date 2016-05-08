@@ -44,6 +44,11 @@ std::vector<char> bfc::lexAnalyse(const std::string& source) {
     return error_occur == false ? out : std::vector<char>();
 }
 
+bool isSimpleOp(char c) {
+    return c == '<' || c == '>' || c ==  '+' || c == '-' || c == '.' || c == ',';
+}
+
+
 bool bfc::syntaxAnalyse(const std::vector<char> &v)
 {
     //TODO:
@@ -55,25 +60,32 @@ bool bfc::syntaxAnalyse(const std::vector<char> &v)
     //S -> <S|>S|+S|-S|.S|,S|[S]S| 'empty'
     //LL(k) parser
 
-    //just check parentesis count
-    auto sum = 0;
-    for (auto i{0u}; i < v.size(); i++) {
-        if (v[i] == '[') {
-            sum++;
+    unsigned brackets_count = 0;
+    for (int i = 0; i < v.size(); i++) {
+        if(isSimpleOp(v[i])) {
+            continue;
         }
         if (v[i] == ']') {
-            sum--;
+            if (brackets_count == 0) {
+                std::cout << "[ERROR] Could not find pair for ']'."
+                          << std::endl;
+                return false;
+            } else {
+                brackets_count--;
+            }
+        }
+        if (v[i] == '[') {
+            brackets_count++;
         }
     }
 
-    if (sum != 0 ) {
-        std::cout << "[ERROR] Number of open brackets does not equal to number of enclosing brackets."
-                  << std::endl
-                  << "Too much operator '" << ((sum > 0) ? "['." : "]'.")
+    if (brackets_count != 0) {
+        std::cout << "[ERROR] Could not find pair for '['"
                   << std::endl;
         return false;
+    } else {
+        return true;
     }
-    return true;
 
 }
 
@@ -86,7 +98,7 @@ bool bfc::semanticAnalyse(const std::vector<char> &v) {
     //Step 1. Detect empty loop []
     for (auto i{0u}; i < v.size() - 1; i++) {
         if (v[i] == '[' and v[i+1] == ']') {
-            std::cout << "[WARNING] Detect empty infinite loop. Your program never ends"
+            std::cout << "[WARNING] Detect empty infinite loop. Your program will never ends"
                       << std::endl;
         }
     }

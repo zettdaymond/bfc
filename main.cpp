@@ -42,10 +42,15 @@ int main(int argc, char const *argv[])
     }
     DEBUG_LAMBDA_TRAVERSE(tokens, [](auto& t){std::cout << t;});
 
-    if (syntaxAnalyse(tokens) == 0 or semanticAnalyse(tokens) == 0) {
-        DEBUG_PRINT(syntaxAnalyse(tokens) == true ?
-                           "Syntax analyse failed" :
-                           "Semantic analyse failed");
+    auto analyse_secusess = syntaxAnalyse(tokens);
+    if (not analyse_secusess) {
+        DEBUG_PRINT( "Syntax analyse failed");
+        return 0;
+    }
+
+    analyse_secusess = semanticAnalyse(tokens);
+    if (not analyse_secusess) {
+        DEBUG_PRINT( "Semantic analyse failed");
         return 0;
     }
 

@@ -16,7 +16,7 @@
         std::cout << (#C) << " :" << std::endl; \
         std::for_each(C.begin(), C.end(), (L)); \
         std::cout << std::endl;
-#   define DEBUG_PRINT( S ) std::cout << (#S) << std::endl;
+#   define DEBUG_PRINT( S ) std::cout << (S) << std::endl;
 #else
 #   define DUMP_VAR( V ) ((void)0);
 #   define DUMP_COLLECTION( V ) ((void)0);
