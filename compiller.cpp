@@ -6,7 +6,7 @@
 
 using namespace bfc;
 
-std::vector<char> bfc::lexAnalyse(const std::string& source) {
+std::vector<char> bfc::lexAnalysis(const std::string& source) {
     //Grammar
     //S -> <S|>S|+S|-S|[S|]S|.S|,S|<|>|+|-|[|]|.|,
     //Comments
@@ -49,7 +49,7 @@ bool isSimpleOp(char c) {
 }
 
 
-bool bfc::syntaxAnalyse(const std::vector<char> &v)
+bool bfc::syntaxAnalysis(const std::vector<char> &v)
 {
     //TODO:
     //Grammar 1
@@ -61,7 +61,7 @@ bool bfc::syntaxAnalyse(const std::vector<char> &v)
     //LL(k) parser
 
     unsigned brackets_count = 0;
-    for (int i = 0; i < v.size(); i++) {
+    for (auto i{0u}; i < v.size(); i++) {
         if(isSimpleOp(v[i])) {
             continue;
         }
@@ -94,7 +94,7 @@ bool canJoin (char c1, char c2) {
 }
 
 
-bool bfc::semanticAnalyse(const std::vector<char> &v) {
+bool bfc::semanticAnalysis(const std::vector<char> &v) {
     //Step 1. Detect empty loop []
     for (auto i{0u}; i < v.size() - 1; i++) {
         if (v[i] == '[' and v[i+1] == ']') {

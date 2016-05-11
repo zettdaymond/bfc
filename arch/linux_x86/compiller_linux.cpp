@@ -9,7 +9,7 @@
 
 using namespace bfc;
 
-std::string bfc::toAssembly(const std::vector<ByteCode> code) {
+std::string bfc::toAssembly(const std::vector<ByteCode> &code) {
     std::string out = templateBegin;
     for (auto &op : code) {
         auto code = asm_templates[op.op];
@@ -20,7 +20,7 @@ std::string bfc::toAssembly(const std::vector<ByteCode> code) {
     return out;
 }
 
-std::string bfc::toBinnary(const std::vector<ByteCode> code) {
+std::string bfc::toBinary(const std::vector<ByteCode> &code) {
     std::string bin_out;
     std::stack<unsigned> stack;
 
@@ -75,7 +75,7 @@ std::string bfc::toBinnary(const std::vector<ByteCode> code) {
     auto bss_address = LOAD_ADDRESS + sizeof(BinaryHeader) + bin_out.size();
     bin_out.insert(0, bin_start_template(bss_address));
 
-    //Create complete elf binnary data
+    //Create complete elf binary data
     std::stringstream out;
 
     BinaryHeader header = createBinaryHeader( bin_out.size() );

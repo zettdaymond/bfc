@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 project(bfc)
 
-
 if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "Build type not especified, building as release.")
         message(STATUS "Use -DCMAKE_BUILD_TYPE=debug|release to set the build type.")

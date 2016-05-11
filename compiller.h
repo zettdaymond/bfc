@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+
 namespace bfc
 {
 
@@ -17,48 +18,48 @@ struct ByteCode {
 
 /**
  * @brief Converts string into a sequence of Brainfuck instructions.
- *  Iterate over source string and try to distinguish brainfuck instructions.
- *  If symbol can not been recognized - prints error and returns empty instruction set.
+ *  Iterates over source string and tries to recognize brainfuck instructions.
+ *  If symbol can not be recognized, prints error and returns empty instruction sequence.
  *
  * @param source - Raw source string.
  * @return Sequence of Brainfuck instructions.
  */
-std::vector<char> lexAnalyse(const std::string& source);
+std::vector<char> lexAnalysis(const std::string& source);
 
 /**
- * @brief Checks that set of tokens is conforming to the rules of a Brainfuck formal grammar.
- * @param Set of tokens
+ * @brief Checks that sequence of tokens is conforming to the rules of a Brainfuck formal grammar.
+ * @param Sequence of tokens
  * @return true, if instructions form valid Brainfuck program.
  */
-bool syntaxAnalyse(const std::vector<char>& v);
+bool syntaxAnalysis(const std::vector<char>& v);
 
 /**
- * @brief Perform some checks like seeking infinite loops.
- * @param Set of tokens
+ * @brief Perform some checks like detecting infinite loops.
+ * @param Sequence of tokens
  * @return true, if all checks passed.
  */
-bool semanticAnalyse(const std::vector<char> &v);
+bool semanticAnalysis(const std::vector<char> &v);
 
 
 /**
  * @brief Generates optimized internal byte code.
- * @param Valid set of tokens.
- * @return Insternal byte code.
+ * @param Valid sequence of tokens.
+ * @return Internal byte code.
  */
 std::vector<ByteCode> optimize(const std::vector<char> &v);
 
 /**
  * @brief Translates internal byte code representation into NASM assembly.
- * @param code - Brainfuck instruction set
+ * @param code - Brainfuck instruction sequence
  * @return NASM assembly instructions
  */
-std::string toAssembly(const std::vector<ByteCode> code);
+std::string toAssembly(const std::vector<ByteCode> &code);
 
 /**
- * @brief Translates internal byte code into binary file on running platform
+ * @brief Translates internal byte code into binary file on targetplatform
  * @param code - Brainfuck instruction internal representation
  * @return executable binary data
  */
-std::string toBinnary(const std::vector<ByteCode> code);
+std::string toBinary(const std::vector<ByteCode> &code);
 
 }

@@ -35,20 +35,20 @@ int main(int argc, char const *argv[])
 
     auto src = buffer.str();
 
-    auto tokens = lexAnalyse(src);
+    auto tokens = lexAnalysis(src);
     if (tokens.empty()) {
         DEBUG_PRINT("Lex analyse failed");
         return 0;
     }
     DEBUG_LAMBDA_TRAVERSE(tokens, [](auto& t){std::cout << t;});
 
-    auto analyse_secusess = syntaxAnalyse(tokens);
+    auto analyse_secusess = syntaxAnalysis(tokens);
     if (not analyse_secusess) {
         DEBUG_PRINT( "Syntax analyse failed");
         return 0;
     }
 
-    analyse_secusess = semanticAnalyse(tokens);
+    analyse_secusess = semanticAnalysis(tokens);
     if (not analyse_secusess) {
         DEBUG_PRINT( "Semantic analyse failed");
         return 0;
@@ -62,8 +62,8 @@ int main(int argc, char const *argv[])
         std::cout << "Translate to NASM..." << std::endl;
         out = toAssembly(byte_code);
     } else {
-        std::cout << "Translate to Binnary..." << std::endl;
-        out = toBinnary(byte_code);
+        std::cout << "Translate to Binary..." << std::endl;
+        out = toBinary(byte_code);
     }
 
     std::ofstream outFile( compillerState.outFile );
