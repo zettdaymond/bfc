@@ -6,11 +6,11 @@ BFC reads target file, then passes its content to lexical analysis to generate B
 # Brainfuck #
 You may read about Brainfuck on corresponding wiki page : https://en.wikipedia.org/wiki/Brainfuck. 
 
-Differences this and discribed in wiki implementation:
+Differences between this and discribed in wiki implementation:
 
-* Each cell size is **u32** (double word) instead of **u8** (word).
+* Each cell size is **u32** (double word) instead of **u8** (byte).
 * Programm may contains one-line comments starts with **#**.
-* All other symbols, exept Brainfuck tokens are be treated as invalid.
+* All other symbols, exept Brainfuck tokens and comments are be treated as invalid.
 
 # Supported Platforms #
 BFC can generate NASM assembly and binnary machine code **ONLY** for **Linux x86**. May be in future I will add support for Windows x86 / Windows x86_64.
@@ -26,10 +26,19 @@ Clone the repo to your machine:
 $ git clone https://bitbucket.org/zettdaymond/bfc
 $ cd ./bfc
 ```
-Then to compile type:
+Then to compile just type:
 ```
 $ mkdir build
 $ cd build
 $ cmake ..
 $ make
+```
+
+You can also specify debug build. For this, instead of
+```
+$ cmake ..
+```
+Write
+```
+$ cmake -DCMAKE_BUILD_TYPE=debug ..
 ```
