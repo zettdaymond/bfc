@@ -1,5 +1,5 @@
 # Description #
-**BFC** - is a dead simple **Brainfuck Compiller** written in C++14. It has been written with learning purposes especially to dive into ELF binary file format and to give some understanding of compilation studies.
+**BFC** - is a dead simple **Brainfuck Compiller** written in C++14. It has been written with learning purposes especially to dive into ELF binary file format and to give some understanding of compilation process.
 
 BFC reads target file, then passes its content to lexical analysis to generate Brainfuck tokens. If tokens successfully verified by syntactic and semantic analysis, then BFC generates optimized byte code as internal representation and, finally, translates internal representation into assembly language or binary machine code on target platform(creates executable file).
 
@@ -9,11 +9,11 @@ You may read about Brainfuck on corresponding wiki page : https://en.wikipedia.o
 Differences between this and discribed in wiki implementation:
 
 * Each cell size is **u32** (double word) instead of **u8** (byte).
-* Programm may contains one-line comments starts with **#**.
+* Program may contain one-line comments starting with **#**.
 * All other symbols, exept Brainfuck tokens and comments are be treated as invalid.
 
 # Supported Platforms #
-BFC can generate NASM assembly and binnary machine code **ONLY** for **Linux x86**. May be in future I will add support for Windows x86 / Windows x86_64.
+BFC can generate NASM assembly and binnary machine code **ONLY** for **Linux x86**. Maybe in future I will add support for Windows x86 / Windows x86_64.
 
 # Build #
 There is no any external dependencies, but you need compiller with **C++14** support, for example:
