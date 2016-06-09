@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <functional>
 
-#include "../../utils.h"
+#include "utils.h"
 
 const unsigned LOAD_ADDRESS = 0x8048000;
 const unsigned BSS_MEM_SIZE = 0x1D4C0; /*30'000 * 4*/

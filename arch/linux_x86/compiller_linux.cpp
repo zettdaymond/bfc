@@ -1,11 +1,11 @@
-#include "../../compiller.h"
-#include "../../utils.h"
+#include "compiller.h"
 
 #include <sstream>
 #include <stack>
 
 #include "asm_templates.h"
 #include "bin_templates.h"
+#include "utils.h"
 
 using namespace bfc;
 
