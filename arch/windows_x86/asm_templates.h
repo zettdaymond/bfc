@@ -6,34 +6,34 @@
 
 std::string templateBegin =
         "; This is an automatically generated NASM assembler\n"
-        "; listing by Brainfuck Compiller"
+        "; listing by Brainfuck Compiller\n\n"
 
-        "STD_OUTPUT_HANDLE equ -11"
-        "%define NULL    dword 0"
+        "STD_OUTPUT_HANDLE equ -11\n"
+        "%define NULL    dword 0\n\n"
 
-        "extern  _GetStdHandle@4"
-        "extern  _WriteFile@20"
-        "extern  _ReadFile@20"
-        "extern  _ExitProcess@4"
+        "extern  _GetStdHandle@4\n"
+        "extern  _WriteFile@20\n"
+        "extern  _ReadFile@20\n"
+        "extern  _ExitProcess@4\n\n"
 
-        "BITS 32"
-        "GLOBAL _start"
+        "BITS 32\n"
+        "GLOBAL _start\n\n"
 
-        "SECTION .text"
-        "_start:"
-        "    mov esi, dataptr"
-        "; hStdOut = GetstdHandle(STD_OUTPUT_HANDLE)"
-        "    push STD_OUTPUT_HANDLE"
-        "    call _GetStdHandle@4"
-        "    mov ebx, eax";
+        "SECTION .text\n"
+        "_start:\n"
+        "    mov esi, dataptr\n"
+        "; hStdOut = GetstdHandle(STD_OUTPUT_HANDLE)\n"
+        "    push STD_OUTPUT_HANDLE\n"
+        "    call _GetStdHandle@4\n"
+        "    mov ebx, eax\n";
 
 std::string templateEnd =
-        "; ExitProcess(0)"
-        "    push    0"
-        "    call    _ExitProcess@4"
-        "SECTION .bss"
-        "    dummy: resd 1"
-        "    dataptr: resd 30000";
+        "; ExitProcess(0)\n"
+        "    push    0\n"
+        "    call    _ExitProcess@4\n"
+        "SECTION .bss\n"
+        "    dummy: resd 1\n"
+        "    dataptr: resd 30000\n";
 
 static std::unordered_map<char, std::string> asm_templates = {
     {
@@ -64,7 +64,7 @@ static std::unordered_map<char, std::string> asm_templates = {
         "push 1\n"
         "push esi\n"
         "push ebx\n"
-        "call _WriteFile@20"
+        "call _WriteFile@20\n"
     },
     {
         ',',
