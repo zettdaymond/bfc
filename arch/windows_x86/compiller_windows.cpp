@@ -64,7 +64,7 @@ std::string bfc::toBinary(const std::vector<ByteCode> &code) {
 
     const unsigned code_section_size = roundToAlign(raw_code_size, SECTION_ALIGN);
 
-    //dummy starts in the begining of bss segmrnt. immidiatly after Header + .code sections.
+    //dummy starts in the begining of bss segment. immidiatly after Header + .code sections.
     const unsigned dummy_address = IMAGEBASE + HEADER_SECTION_SIZE + code_section_size;
     //data starts immidiatly after dummy var.
     const unsigned data_address = dummy_address + sizeof(dummy_address);
@@ -75,7 +75,7 @@ std::string bfc::toBinary(const std::vector<ByteCode> &code) {
 
     bin_out += preambuleBinTemplate(data_address,kernel_function_adresses.get_std_handle);
 
-    //codogeneration process.
+    //STEP 2: code generation.
     for (auto &op : code) {
         if (op.op == '[') {
             stack.push(bin_out.size());
@@ -131,7 +131,7 @@ std::string bfc::toBinary(const std::vector<ByteCode> &code) {
 
     bin_out += postambuleBinTemplate(kernel_function_adresses.exit_process);
 
-    //write to file;
+    //STEP 3: write PE sections to string;
     std::stringstream out;
 
     writeWithAlign(out, (char*)&header, sizeof(header), FILE_ALIGN);

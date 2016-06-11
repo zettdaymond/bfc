@@ -16,7 +16,7 @@ const unsigned SECTION_ALIGN = 0x1000;
 const unsigned FILE_ALIGN = 0x200;
 
 struct BinaryHeader {
-    IMAGE_DOS_HEADER dos_Header; //DOS Header
+    IMAGE_DOS_HEADER dos_Header;
     DWORD pe_Header_Signature;
     IMAGE_FILE_HEADER pe_File_Header;
     IMAGE_OPTIONAL_HEADER32 opt_Header;
@@ -29,7 +29,7 @@ struct ImportSection {
     IMAGE_IMPORT_DESCRIPTOR is_term;
     DWORD is_hintnames[4 + 1];
 
-    //IMPORT_BY_NAME:
+    //series of IMPORT_BY_NAME structs:
     WORD ibn_ep_hint = 0;
     char ibn_ep_name[12] = "ExitProcess";
 
@@ -48,11 +48,11 @@ struct ImportSection {
 
 const unsigned HEADER_SECTION_SIZE = roundToAlign(sizeof(BinaryHeader), SECTION_ALIGN);
 const unsigned ENTRY_POINT = HEADER_SECTION_SIZE; //code starts immidiatly after header.
-const unsigned HEADER_TO_FILE_ROUNDED_SIZE = roundToAlign(offsetof(BinaryHeader, code), FILE_ALIGN);
+const unsigned HEADER_IN_FILE_SIZE = roundToAlign(offsetof(BinaryHeader, code), FILE_ALIGN);
 const unsigned BSS_MEM_SIZE = 0x1D4C0 + sizeof(DWORD); /* 30'000 cells + dummy */
 const unsigned BSS_SECTION_SIZE = roundToAlign(BSS_MEM_SIZE ,SECTION_ALIGN);
 const unsigned IMPORT_SECTION_SIZE = roundToAlign(sizeof(ImportSection), SECTION_ALIGN);
-const unsigned IMPORT_FILE_SIZE = roundToAlign(sizeof(ImportSection), FILE_ALIGN);
+const unsigned IMPORT_IN_FILE_SIZE = roundToAlign(sizeof(ImportSection), FILE_ALIGN);
 
 
 struct KernelFunctionsAddresses {
@@ -62,10 +62,25 @@ struct KernelFunctionsAddresses {
     unsigned write_file;
 };
 
-BinaryHeader createBinaryHeader(unsigned code_size);
+/**
+ * @brief Creates PE file header.
+ * @param raw_code_size - count of bytes of all generated opcodes.
+ * @return PE file header.
+ */
+BinaryHeader createBinaryHeader(unsigned raw_code_size);
 
+/**
+ * @brief Creates PE file Import Section, that describes imported functions from 'linked' kernel32 library.
+ * @param raw_code_size - count of bytes of all generated opcodes.
+ * @return PE file import section.
+ */
 ImportSection createImportSection(unsigned raw_code_size);
 
+/**
+ * @brief Determines virtual addresses of imported functions from kernel32 library.
+ * @param raw_code_size - count of bytes of all generated opcodes.
+ * @return struct, that contains virtual addresses of functions.
+ */
 KernelFunctionsAddresses getKernelFunctionAddresses(unsigned raw_code_size);
 
 #endif //EXE_BUILDER_H

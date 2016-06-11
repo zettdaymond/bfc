@@ -1,9 +1,9 @@
 #include "exe_builder.h"
 
-BinaryHeader createBinaryHeader(unsigned code_size)
+BinaryHeader createBinaryHeader(unsigned raw_code_size)
 {
-    const unsigned CODE_SECTION_SIZE = roundToAlign(code_size, SECTION_ALIGN);
-    const unsigned CODE_TO_FILE_ROUNDED_SIZE = roundToAlign(code_size, FILE_ALIGN);
+    const unsigned CODE_SECTION_SIZE = roundToAlign(raw_code_size, SECTION_ALIGN);
+    const unsigned CODE_TO_FILE_ROUNDED_SIZE = roundToAlign(raw_code_size, FILE_ALIGN);
     const unsigned IMPORT_DESCRIPTOR = HEADER_SECTION_SIZE + CODE_SECTION_SIZE + BSS_SECTION_SIZE; //Starts immidiatly after bss section
 
     //Less understandable, but much less verbose style.
@@ -26,7 +26,7 @@ BinaryHeader createBinaryHeader(unsigned code_size)
     OPTIONAL_HEADER.FileAlignment = FILE_ALIGN;
     OPTIONAL_HEADER.MajorSubsystemVersion = 4;
     OPTIONAL_HEADER.SizeOfImage = HEADER_SECTION_SIZE + CODE_SECTION_SIZE + BSS_SECTION_SIZE + IMPORT_SECTION_SIZE;
-    OPTIONAL_HEADER.SizeOfHeaders = HEADER_TO_FILE_ROUNDED_SIZE;
+    OPTIONAL_HEADER.SizeOfHeaders = HEADER_IN_FILE_SIZE;
     OPTIONAL_HEADER.Subsystem = IMAGE_SUBSYSTEM_WINDOWS_CUI;
     OPTIONAL_HEADER.NumberOfRvaAndSizes = IMAGE_NUMBEROF_DIRECTORY_ENTRIES;
 
@@ -42,7 +42,7 @@ BinaryHeader createBinaryHeader(unsigned code_size)
     SECTION_HEADER_TEXT.Misc.VirtualSize = CODE_SECTION_SIZE;
     SECTION_HEADER_TEXT.VirtualAddress = ENTRY_POINT;
     SECTION_HEADER_TEXT.SizeOfRawData = CODE_TO_FILE_ROUNDED_SIZE;
-    SECTION_HEADER_TEXT.PointerToRawData = HEADER_TO_FILE_ROUNDED_SIZE;
+    SECTION_HEADER_TEXT.PointerToRawData = HEADER_IN_FILE_SIZE;
     SECTION_HEADER_TEXT.Characteristics = IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ;
 
     //uninitialized data .bss section
@@ -59,8 +59,8 @@ BinaryHeader createBinaryHeader(unsigned code_size)
     memcpy(SECTION_HEADER_IMPORTS.Name, ".rdata", 6);
     SECTION_HEADER_IMPORTS.Misc.VirtualSize = IMPORT_SECTION_SIZE;
     SECTION_HEADER_IMPORTS.VirtualAddress = HEADER_SECTION_SIZE + CODE_SECTION_SIZE + BSS_SECTION_SIZE;
-    SECTION_HEADER_IMPORTS.SizeOfRawData = IMPORT_FILE_SIZE;
-    SECTION_HEADER_IMPORTS.PointerToRawData = HEADER_TO_FILE_ROUNDED_SIZE +  CODE_TO_FILE_ROUNDED_SIZE;
+    SECTION_HEADER_IMPORTS.SizeOfRawData = IMPORT_IN_FILE_SIZE;
+    SECTION_HEADER_IMPORTS.PointerToRawData = HEADER_IN_FILE_SIZE +  CODE_TO_FILE_ROUNDED_SIZE;
     SECTION_HEADER_IMPORTS.Characteristics = IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE;
 
     return BinaryHeader {
