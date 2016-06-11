@@ -82,10 +82,10 @@ KernelFunctionsAddresses getKernelFunctionAddresses(unsigned raw_code_size) {
                                           CODE_SECTION_SIZE +
                                           BSS_SECTION_SIZE;
     return KernelFunctionsAddresses {
-        IMAGEBASE + IMPORT_SECTION_SHIFT + offsetof(ImportSection, is_loadpoints[0]),
-        IMAGEBASE + IMPORT_SECTION_SHIFT + offsetof(ImportSection, is_loadpoints[1]),
-        IMAGEBASE + IMPORT_SECTION_SHIFT + offsetof(ImportSection, is_loadpoints[2]),
-        IMAGEBASE + IMPORT_SECTION_SHIFT + offsetof(ImportSection, is_loadpoints[3]),
+        IMAGEBASE + IMPORT_SECTION_SHIFT + (unsigned)offsetof(ImportSection, is_loadpoints[0]),
+        IMAGEBASE + IMPORT_SECTION_SHIFT + (unsigned)offsetof(ImportSection, is_loadpoints[1]),
+        IMAGEBASE + IMPORT_SECTION_SHIFT + (unsigned)offsetof(ImportSection, is_loadpoints[2]),
+        IMAGEBASE + IMPORT_SECTION_SHIFT + (unsigned)offsetof(ImportSection, is_loadpoints[3]),
     };
 }
 
@@ -106,10 +106,10 @@ ImportSection createImportSection(unsigned raw_code_size)
     IMPORT_DESCRIPTOR_KERNEL32.FirstThunk = LOAD_POINTS_ENTRY;
 
     DWORD hintnames[4 + 1] = {
-        IMPORT_SECTION_SHIFT + offsetof(ImportSection, ibn_ep_hint),
-        IMPORT_SECTION_SHIFT + offsetof(ImportSection, ibn_gdh_hint),
-        IMPORT_SECTION_SHIFT + offsetof(ImportSection, ibn_rf_hint),
-        IMPORT_SECTION_SHIFT + offsetof(ImportSection, ibn_wf_hint),
+        IMPORT_SECTION_SHIFT + (unsigned)offsetof(ImportSection, ibn_ep_hint),
+        IMPORT_SECTION_SHIFT + (unsigned)offsetof(ImportSection, ibn_gdh_hint),
+        IMPORT_SECTION_SHIFT + (unsigned)offsetof(ImportSection, ibn_rf_hint),
+        IMPORT_SECTION_SHIFT + (unsigned)offsetof(ImportSection, ibn_wf_hint),
         0
     };
 

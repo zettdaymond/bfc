@@ -21,7 +21,6 @@ struct BinaryHeader {
     IMAGE_FILE_HEADER pe_File_Header;
     IMAGE_OPTIONAL_HEADER32 opt_Header;
     IMAGE_SECTION_HEADER scn_Headers[3]; //.text, .rdata, .bss section headers;
-    char code[];
 };
 
 struct ImportSection {
@@ -48,7 +47,7 @@ struct ImportSection {
 
 const unsigned HEADER_SECTION_SIZE = roundToAlign(sizeof(BinaryHeader), SECTION_ALIGN);
 const unsigned ENTRY_POINT = HEADER_SECTION_SIZE; //code starts immidiatly after header.
-const unsigned HEADER_IN_FILE_SIZE = roundToAlign(offsetof(BinaryHeader, code), FILE_ALIGN);
+const unsigned HEADER_IN_FILE_SIZE = roundToAlign(sizeof(BinaryHeader), FILE_ALIGN);
 const unsigned BSS_MEM_SIZE = 0x1D4C0 + sizeof(DWORD); /* 30'000 cells + dummy */
 const unsigned BSS_SECTION_SIZE = roundToAlign(BSS_MEM_SIZE ,SECTION_ALIGN);
 const unsigned IMPORT_SECTION_SIZE = roundToAlign(sizeof(ImportSection), SECTION_ALIGN);
