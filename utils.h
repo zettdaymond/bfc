@@ -59,4 +59,11 @@ unsigned cast_to_U32(long int n);
 
 std::pair<unsigned, unsigned> getLineAndOccurance(unsigned pos, const std::string& str);
 
+void writeWithAlign(std::ostream& out, char* data, unsigned size, unsigned align);
+
+template<class T, class U>
+T roundToAlign( T v, U align) {
+    return v + (align - (v % align));
+}
+
 #endif //UTILS_H

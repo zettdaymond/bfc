@@ -97,3 +97,16 @@ std::pair<unsigned, unsigned> getLineAndOccurance(unsigned pos, const std::strin
 }
 
 #endif //UTILS_H
+
+void writeWithAlign(std::ostream &out, char *data, unsigned size, unsigned align)
+{
+    auto bytes_to_align = (align - (size % align));
+    std::vector<char> padd;
+    padd.resize(bytes_to_align);
+    for (auto& c : padd) {
+        c = 0;
+    }
+
+    out.write(data, size);
+    out.write(&padd[0], padd.size() * sizeof(char));
+}

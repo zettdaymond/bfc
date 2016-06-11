@@ -30,7 +30,7 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
         ${CMAKE_SOURCE_DIR}/arch/windows_x86/compiller_windows.cpp
         ${CMAKE_SOURCE_DIR}/arch/windows_x86/asm_templates.h
         ${CMAKE_SOURCE_DIR}/arch/windows_x86/bin_templates.h
-        ${CMAKE_SOURCE_DIR}/arch/windows_x86/exe_builder.h)
+        ${CMAKE_SOURCE_DIR}/arch/windows_x86/exe_builder.cpp)
 else()
     message(FATAL_ERROR "Your Platform does not supported: ${CMAKE_SYSTEM_NAME}")
 endif()

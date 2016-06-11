@@ -66,7 +66,7 @@ std::string getcharBinTemplate(auto dummy_address, auto readfile_func_address) {
         //push ebx
         '\x53',
         //call _ReadFile@20
-        '\xE8', func_addr_bytes[3], func_addr_bytes[2], func_addr_bytes[1], func_addr_bytes[0]
+        '\xFF', '\x15', func_addr_bytes[3], func_addr_bytes[2], func_addr_bytes[1], func_addr_bytes[0]
     };
 }
 

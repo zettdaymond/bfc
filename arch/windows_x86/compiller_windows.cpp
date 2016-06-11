@@ -23,7 +23,6 @@ std::string bfc::toAssembly(const std::vector<ByteCode> &code) {
 
 std::string bfc::toBinary(const std::vector<ByteCode> &code) {
     std::string bin_out;
-    std::string code_section;
     std::stack<unsigned> stack;
 
     //STEP 1: compute size of the code.
@@ -63,18 +62,15 @@ std::string bfc::toBinary(const std::vector<ByteCode> &code) {
     raw_code_size += postambuleBinTemplate(0).size();
 
 
-
-    const unsigned rounded_to_section_code_size = roundToAlign(raw_code_size, SECTION_ALIGN);
-    const unsigned rounded_to_file_code_size = roundToAlign(raw_code_size, FILE_ALIGN);
+    const unsigned code_section_size = roundToAlign(raw_code_size, SECTION_ALIGN);
 
     //dummy starts in the begining of bss segmrnt. immidiatly after Header + .code sections.
-    const unsigned dummy_address = IMAGEBASE + HEADER_TO_SECTION_ROUNDED_SIZE + rounded_to_section_code_size;
+    const unsigned dummy_address = IMAGEBASE + HEADER_SECTION_SIZE + code_section_size;
     //data starts immidiatly after dummy var.
     const unsigned data_address = dummy_address + sizeof(dummy_address);
 
     BinaryHeader header = createBinaryHeader(raw_code_size);
-//    const unsigned int header_rounded_to_file_size = roundToAlign(sizeof(header), SECTION_ALIGN);
-    ImportSection import_section = createImportsSection(raw_code_size);
+    ImportSection import_section = createImportSection(raw_code_size);
     auto kernel_function_adresses = getKernelFunctionAddresses(raw_code_size);
 
     bin_out += preambuleBinTemplate(data_address,kernel_function_adresses.get_std_handle);
