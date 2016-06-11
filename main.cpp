@@ -66,7 +66,7 @@ int main(int argc, char const *argv[])
         out = toBinary(byte_code);
     }
 
-    std::ofstream outFile( compillerState.outFile );
+    std::ofstream outFile( compillerState.outFile, std::ios::binary | std::ios::out );
     outFile << out;
     outFile.flush();
 
