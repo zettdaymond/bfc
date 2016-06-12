@@ -30,6 +30,7 @@ There is no any external dependencies, but you need compiller with **C++14** sup
 
 and **cmake >= 3.0** buld system.
 
+## Linux ##
 Clone the repo to your machine:
 ```
 $ git clone https://bitbucket.org/zettdaymond/bfc
@@ -50,4 +51,22 @@ $ cmake ..
 Write
 ```
 $ cmake -DCMAKE_BUILD_TYPE=debug ..
+```
+## Windows ##
+I build BFC on windows using [MSYS2](https://msys2.github.io/) and MinGW compiller.
+
+Clone the repo to your machine:
+```
+$ git clone https://bitbucket.org/zettdaymond/bfc
+$ cd ./bfc
+```
+Create build folder
+```
+$ mkdir build
+$ cd build
+```
+Then, if you in MSYS2 environment, type:
+```
+cmake -G "MSYS Makefiles" ..
+make
 ```
