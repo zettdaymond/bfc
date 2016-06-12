@@ -1,12 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <vector>
 #include <array>
 #include <string>
-#include <initializer_list>
 #include <iostream>
-#include <sstream>
 #include <algorithm>
 
 #if defined(BFC_DEBUG)
@@ -29,11 +26,16 @@ struct HexCharStruct
   unsigned char c;
   HexCharStruct(unsigned char _c) : c(_c) { }
 };
+inline std::ostream& operator<<(std::ostream& o, const HexCharStruct& hs) {
+    return (o << std::hex << (int)hs.c);
+}
+inline HexCharStruct hex(unsigned char _c) {
+    return HexCharStruct(_c);
+}
 
-inline std::ostream& operator<<(std::ostream& o, const HexCharStruct& hs);
-
-inline HexCharStruct hex(unsigned char _c);
-
+/**
+ * @brief Prints hexadecimal content of collection.
+ */
 template<class T>
 void dump( T& v) {
     std::cout << "Dump : ";
@@ -43,24 +45,51 @@ void dump( T& v) {
     std::cout << "\t|\tSIZE: " << v.size() << std::endl << std::endl;
 }
 
-bool replace(std::string& str, const std::string& from, const std::string& to);
+/**
+ * @brief Replaces one occurrence of substring to chosen string.
+ * @param where - string, which be handled.
+ * @param what - substring to replace.
+ * @param to - new substring.
+ * @return true, if success.
+ */
+bool replace(std::string& where, const std::string& what, const std::string& to);
 
-void replaceAll(std::string& str, const std::string& from, const std::string& to);
+/**
+ * @brief Replaces all occurrences of substring to chosen string.
+ * @param where - string, which be handled.
+ * @param what - substring to replace.
+ * @param to - new substring.
+ */
+void replaceAll(std::string& where, const std::string& what, const std::string& to);
 
-std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
-
-std::vector<std::string> split(const std::string &s, char delim);
-
-void pushBackArray(std::vector<char>& v, std::initializer_list<char> l);
-
+/**
+ * @brief Split one Double Word into 4 Bytes that represent it.
+ * @param n - number, which be handled
+ * @return array of splitted bytes in big-endian encoding.
+ */
 std::array<char, 4> splitToBytes( unsigned n );
 
-unsigned cast_to_U32(long int n);
+/**
+ * @brief Counts line-ending symbols between begining of the string and some position,
+ *        and determine occurrence of this position in last line.
+ * @param pos - position in string
+ * @param str - string, which be handled
+ * @return pair of lines count number and position in last line.
+ */
+std::pair<unsigned, unsigned> getLineAndOccurrence(unsigned pos, const std::string& str);
 
-std::pair<unsigned, unsigned> getLineAndOccurance(unsigned pos, const std::string& str);
-
+/**
+ * @brief Writes data to output stream, and fills the rest by 0 according to the alingment.
+ * @param out - output stream
+ * @param data - pointer to binary data
+ * @param size - count of bytes in data
+ * @param align - alignment
+ */
 void writeWithAlign(std::ostream& out, char* data, unsigned size, unsigned align);
 
+/**
+ * @brief Rounds some value to chosen alignment.
+ */
 template<class T, class U>
 T roundToAlign( T v, U align) {
     return v + (align - (v % align));

@@ -1,68 +1,23 @@
-#ifndef UTILS_H
-#define UTILS_H
+#include "utils.h"
 
 #include <vector>
-#include <array>
-#include <string>
-#include <initializer_list>
-#include <iostream>
-#include <sstream>
-#include <utility>
 
-bool replace(std::string& str, const std::string& from, const std::string& to) {
-    size_t start_pos = str.find(from);
+bool replace(std::string& where, const std::string& what, const std::string& to) {
+    size_t start_pos = where.find(what);
     if(start_pos == std::string::npos)
         return false;
-    str.replace(start_pos, from.length(), to);
+    where.replace(start_pos, what.length(), to);
     return true;
 }
 
-void replaceAll(std::string& str, const std::string& from, const std::string& to) {
-    if(from.empty())
+void replaceAll(std::string& where, const std::string& what, const std::string& to) {
+    if(what.empty())
         return;
     size_t start_pos = 0;
-    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
-        str.replace(start_pos, from.length(), to);
-        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    while((start_pos = where.find(what, start_pos)) != std::string::npos) {
+        where.replace(start_pos, what.length(), to);
+        start_pos += to.length(); // In case 'to' contains 'what', like replacing 'x' with 'yx'
     }
-}
-
-std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
-}
-
-std::vector<std::string> split(const std::string &s, char delim) {
-    std::vector<std::string> elems;
-    split(s, delim, elems);
-    return elems;
-}
-
-void pushBackArray(std::vector<char>& v, std::initializer_list<char> l)
-{
-    for(auto e : l) {
-        v.push_back( e );
-    }
-}
-
-struct HexCharStruct
-{
-  unsigned char c;
-  HexCharStruct(unsigned char _c) : c(_c) { }
-};
-
-std::ostream& operator<<(std::ostream& o, const HexCharStruct& hs)
-{
-  return (o << std::hex << (int)hs.c);
-}
-
-HexCharStruct hex(unsigned char _c)
-{
-  return HexCharStruct(_c);
 }
 
 std::array<char, 4> splitToBytes( unsigned n )
@@ -76,11 +31,7 @@ std::array<char, 4> splitToBytes( unsigned n )
     return bytes;
 }
 
-unsigned cast_to_U32(long int n) {
-    return static_cast<uint32_t> (n);
-}
-
-std::pair<unsigned, unsigned> getLineAndOccurance(unsigned pos, const std::string& str) {
+std::pair<unsigned, unsigned> getLineAndOccurrence(unsigned pos, const std::string& str) {
     auto n{0u};
     auto occ{0u};
     if (pos >= str.length()) {
@@ -95,8 +46,6 @@ std::pair<unsigned, unsigned> getLineAndOccurance(unsigned pos, const std::strin
     }
     return std::make_pair(n + 1, occ);
 }
-
-#endif //UTILS_H
 
 void writeWithAlign(std::ostream &out, char *data, unsigned size, unsigned align)
 {

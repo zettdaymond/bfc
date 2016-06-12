@@ -37,7 +37,7 @@ std::vector<char> bfc::lexAnalysis(const std::string& source) {
 
         //default
         error_occur = true;
-        auto occ = getLineAndOccurance(i, source);
+        auto occ = getLineAndOccurrence(i, source);
         std::cout << "[ERROR] at Line : " << occ.first << ", Column : " << occ.second << "\n"
                   << "\tCould not recognize symbol '" << c << "'" << std::endl;
     }
