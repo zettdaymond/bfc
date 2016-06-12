@@ -5,17 +5,17 @@ project(bfc)
 
 if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "Build type not especified, building as release.")
-        message(STATUS "Use -DCMAKE_BUILD_TYPE=debug|release to set the build type.")
+    message(STATUS "Use -DCMAKE_BUILD_TYPE=Debug|Release to set the build type.")
     set(CMAKE_BUILD_TYPE release)
-endif(NOT CMAKE_BUILD_TYPE)
+endif()
 
-add_definitions(-std=c++14 -Wall -Wextra -pedantic)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_definitions( -Wall -Wextra -pedantic)
+endif()
 
-if (${CMAKE_BUILD_TYPE} STREQUAL release)
-        add_definitions(-O2 -s)
-else (${CMAKE_BUILD_TYPE} STREQUAL release)
-        add_definitions(-DBFC_DEBUG -ggdb -g3)
-endif (${CMAKE_BUILD_TYPE} STREQUAL release)
+if (${CMAKE_BUILD_TYPE} STREQUAL Debug OR ${CMAKE_BUILD_TYPE} STREQUAL debug  OR ${CMAKE_BUILD_TYPE} STREQUAL Debug )
+    add_definitions(-DBFC_DEBUG)
+endif()
 
 set(BFC_SOURCE main.cpp compiller.h utils.h utils.cpp compiller.cpp)
 
@@ -35,3 +35,5 @@ else()
     message(FATAL_ERROR "Your Platform does not supported: ${CMAKE_SYSTEM_NAME}")
 endif()
 add_executable( bfc ${BFC_SOURCE} ${BFC_PLATFORM_SOURCE})
+
+set_property(TARGET bfc PROPERTY CXX_STANDARD 14)
