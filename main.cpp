@@ -43,13 +43,13 @@ int main(int argc, char const *argv[])
     DEBUG_LAMBDA_TRAVERSE(tokens, [](auto& t){std::cout << t;});
 
     auto analyse_secusess = syntaxAnalysis(tokens);
-    if (not analyse_secusess) {
+    if (!analyse_secusess) {
         DEBUG_PRINT( "Syntax analyse failed");
         return 0;
     }
 
     analyse_secusess = semanticAnalysis(tokens);
-    if (not analyse_secusess) {
+    if (!analyse_secusess) {
         DEBUG_PRINT( "Semantic analyse failed");
         return 0;
     }
@@ -85,17 +85,17 @@ CompillerState parseComandLineArgs(int argc, char const *argv[])
     }
 
     for(auto i = 1; i < argc; i++) {
-        if ( not strcmp(argv[i], "-h") || not strcmp(argv[i], "--help") ) {
+        if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help") ) {
             usage();
             std::exit(0);
         }
 
-        if ( not strcmp(argv[i], "-a") || not strcmp(argv[i], "--assembly") ) {
+        if ( !strcmp(argv[i], "-a") || !strcmp(argv[i], "--assembly") ) {
             state.assembly = true;
             continue;
         }
 
-        if ( not strcmp(argv[i], "-o") || not strcmp(argv[i], "--output") ) {
+        if ( !strcmp(argv[i], "-o") || !strcmp(argv[i], "--output") ) {
             if (i + 1 != argc){
                 state.outFile = argv[i+1];
                 i++;

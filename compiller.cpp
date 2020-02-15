@@ -97,7 +97,7 @@ bool canJoin (char c1, char c2) {
 bool bfc::semanticAnalysis(const std::vector<char> &v) {
     //Step 1. Detect empty loop []
     for (auto i{0u}; i < v.size() - 1; i++) {
-        if (v[i] == '[' and v[i+1] == ']') {
+        if (v[i] == '[' && v[i+1] == ']') {
             std::cout << "[WARNING] Detect empty infinite loop. Your program will never ends"
                       << std::endl;
         }
