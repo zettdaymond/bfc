@@ -70,13 +70,13 @@ Then, if you in MSYS2 environment, type:
 cmake -G "MSYS Makefiles" ..
 make
 ```
-I have not tested that BFC may be build using Visual Studio Compiler, but there is nothing that may prevent this. Ensure that your Visual Studio Compiler supports C++14 and instead of
+I've tested that BFC may be build using Visual Studio 2019. To build bfc using Visual Studio 2019 instead of
 ```
 cmake -G "MSYS Makefiles" ..
 ```
 in previous instruction, write, for example,
 ```
-cmake -G "Visual Studio 14 2015 Win64" ..
+cmake -G "Visual Studio 16 2019" -A x64 ..
 cmake --build ./
 ```
 See full list of all available generators by typing
